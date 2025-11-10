@@ -1,0 +1,129 @@
+# ============================================================
+# ✅ ENVIRONMENT IMPORT (loads .env automatically)
+# ============================================================
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  # ============================================================
+  # ✅ APPLICATION INFO
+  # ============================================================
+  application:
+    name: "Quizzify - An Advanced Quiz App"
+
+  # ============================================================
+  # ✅ DATABASE (PostgreSQL)
+  # ============================================================
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update          # use "validate" or "none" in production
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # ============================================================
+  # ✅ REDIS (for caching, leaderboard, etc.)
+  # ============================================================
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+
+  # ============================================================
+  # ✅ MAIL (Gmail SMTP for verification, etc.)
+  # ============================================================
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  # ============================================================
+  # ✅ FILE UPLOAD SETTINGS
+  # ============================================================
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  # ============================================================
+  # ✅ GOOGLE OAUTH2 LOGIN
+  # ============================================================
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            client-name: Google
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+
+# ============================================================
+# ✅ SERVER CONFIG
+# ============================================================
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# ============================================================
+# ✅ SWAGGER / OPENAPI CONFIGURATION
+# ============================================================
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    displayRequestDuration: true
+    tryItOutEnabled: true
+
+# ============================================================
+# ✅ JWT CONFIGURATION
+# ============================================================
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:3600000}   # default 1 hour
+
+# ============================================================
+# ✅ APP-LEVEL SETTINGS
+# ============================================================
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  verification-expiration-hours: 24
+
+# ============================================================
+# ✅ LOGGING CONFIGURATION
+# ============================================================
+logging:
+  level:
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+    com.raj.quiz_app_backend: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Your Quizzify Account</title>
+    <style>
+        body {
+          font-family: "Poppins", "Segoe UI", sans-serif;
+          background: linear-gradient(135deg, #f3f4f6, #eef2ff);
+          margin: 0;
+          padding: 0;
+          color: #1f2937;
+        }
+
+        .container {
+          max-width: 480px;
+          margin: 50px auto;
+          background: #ffffff;
+          border-radius: 20px;
+          box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+          overflow: hidden;
+          animation: fadeIn 0.7s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+          background: linear-gradient(135deg, #4f46e5, #10b981);
+          color: white;
+          text-align: center;
+          padding: 30px 20px;
+        }
+
+        .header h1 {
+          margin: 0;
+          font-size: 26px;
+          letter-spacing: 1px;
+        }
+
+        .content {
+          text-align: center;
+          padding: 40px 30px 30px;
+        }
+
+        .content h2 {
+          color: #111827;
+          font-size: 22px;
+          margin-bottom: 10px;
+        }
+
+        .content p {
+          color: #4b5563;
+          line-height: 1.6;
+          font-size: 15px;
+          margin: 10px 0;
+        }
+
+        .otp-box {
+          background: linear-gradient(135deg, #6366f1, #10b981);
+          color: white;
+          display: inline-block;
+          padding: 15px 40px;
+          border-radius: 12px;
+          font-size: 34px;
+          font-weight: bold;
+          letter-spacing: 8px;
+          margin: 25px 0;
+          box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+        }
+
+        .footer {
+          background: #f9fafb;
+          padding: 15px 0;
+          text-align: center;
+          font-size: 13px;
+          color: #9ca3af;
+          border-top: 1px solid #e5e7eb;
+        }
+
+        .footer a {
+          color: #4f46e5;
+          text-decoration: none;
+          font-weight: 600;
+        }
+
+        @media (max-width: 500px) {
+          .otp-box {
+            font-size: 28px;
+            letter-spacing: 5px;
+            padding: 12px 30px;
+          }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <h1>✨ Verify Your Email</h1>
+    </div>
+    <div class="content">
+        <h2>Hey {{USERNAME}}, 👋</h2>
+        <p>Welcome to <strong>Quizzify</strong> — where learning meets fun!</p>
+        <p>Here’s your one-time verification code:</p>
+
+        <div class="otp-box">{{OTP_CODE}}</div>
+
+        <p>This code will expire in <strong>10 minutes</strong>.</p>
+        <p>If you didn’t sign up, you can safely ignore this message.</p>
+    </div>
+
+    <div class="footer">
+        <p>Need help? <a href="mailto:support@quizzify.com">Contact Support</a></p>
+        <p>© 2025 Quizzify Inc. | All Rights Reserved</p>
+    </div>
+</div>
+</body>
+</html>

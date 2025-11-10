@@ -1,0 +1,28 @@
+package com.raj.quiz_app_backend.security;
+
+import com.raj.quiz_app_backend.model.User;
+import com.raj.quiz_app_backend.services.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+
+    private final UserService userService;
+
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) {
+        OAuth2User oAuth2User = super.loadUser(userRequest);
+        String email = oAuth2User.getAttribute("email");
+        String name = oAuth2User.getAttribute("name");
+
+        // Create or fetch user from DB
+        User user = userService.findOrCreateGoogleUser(email, name);
+
+        return new CustomOAuth2User(oAuth2User, user);
+    }
+}
