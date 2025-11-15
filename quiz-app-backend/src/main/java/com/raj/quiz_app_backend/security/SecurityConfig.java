@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -13,6 +14,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.List;
 
 /**
  * Main Security Configuration:
@@ -57,30 +63,56 @@ public class SecurityConfig {
     }
 
     /**
+     * CORS configuration bean used by Spring Security
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        // Allow ONLY your frontend domain
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
+
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+
+        // Important → allows Authorization header JWT to work properly
+        config.setExposedHeaders(List.of("Authorization"));
+
+        // If frontend does NOT use cookies/Credentials, this MUST be false
+        config.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
+    }
+
+
+    /**
      * Main Spring Security filter chain configuration
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                // Enable CORS using the configuration source bean
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 // Disable CSRF (stateless REST API)
                 .csrf(csrf -> csrf.disable())
 
                 // Configure endpoint access
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/swagger-resources/**",
-                                "/api-docs/**",
+                                "/v3/api-docs/**",
                                 "/ws/**",
-                                "/quiz-websocket/**"
+                                "/quiz-websocket/**",
+                                "/uploads/**"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/creator/**").hasAnyRole("CREATOR", "ADMIN")
-                        .requestMatchers("/api/quizzes/**", "/api/public/**").permitAll()
                         .anyRequest().authenticated()
                 )
 

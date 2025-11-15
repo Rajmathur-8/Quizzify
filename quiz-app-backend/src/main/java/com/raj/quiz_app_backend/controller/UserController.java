@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -80,4 +81,14 @@ public class UserController {
 //        UserDetailsImpl user = (UserDetailsImpl) auth.getPrincipal();
 //        return ResponseEntity.ok(user.getUser());
 //    }
+@PostMapping("/{id}/avatar")
+public ResponseEntity<Map<String, String>> uploadAvatar(
+        @PathVariable String id,
+        @RequestParam("file") MultipartFile file
+) {
+    User updated = userService.updateAvatar(id, file);
+    String avatarUrl = updated.getAvatarUrl(); // ensure not null
+    return ResponseEntity.ok(Map.of("avatarUrl", avatarUrl));
+}
+
 }

@@ -19,7 +19,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         return "leaderboard:" + quizId;
     }
 
-    // Add or update a user's score directly (set absolute score)
+    // Add or update a user's score directly (absolute score)
     @Override
     public void updateScore(String quizId, String username, double score) {
         redisTemplate.opsForZSet().add(getKey(quizId), username, score);
@@ -39,9 +39,13 @@ public class LeaderboardServiceImpl implements LeaderboardService {
 
         if (top == null) return List.of();
 
-        return top.stream()
-                .map(entry -> new LeaderboardEntryDTO(entry.getValue(), entry.getScore()))
-                .collect(Collectors.toList());
+        List<LeaderboardEntryDTO> results = new ArrayList<>();
+        int rank = 1;
+
+        for (ZSetOperations.TypedTuple<String> entry : top) {
+            results.add(new LeaderboardEntryDTO(null, entry.getValue(), entry.getScore() != null ? entry.getScore() : 0.0, rank++));
+        }
+        return results;
     }
 
     // Get user's rank and score
@@ -51,10 +55,10 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         Double score = redisTemplate.opsForZSet().score(getKey(quizId), username);
 
         if (rank == null || score == null)
-            return new LeaderboardEntryDTO(username, 0, -1); // not found
+            return new LeaderboardEntryDTO(null, username, 0, -1); // not found
 
-        // Convert 0-based Redis rank to 1-based human rank
-        return new LeaderboardEntryDTO(username, score, rank + 1);
+        // Convert 0-based Redis rank to 1-based
+        return new LeaderboardEntryDTO(null, username, score, rank.intValue() + 1);
     }
 
     // Get all leaderboard entries (sorted)
@@ -65,9 +69,13 @@ public class LeaderboardServiceImpl implements LeaderboardService {
 
         if (entries == null) return List.of();
 
-        return entries.stream()
-                .map(entry -> new LeaderboardEntryDTO(entry.getValue(), entry.getScore()))
-                .collect(Collectors.toList());
+        List<LeaderboardEntryDTO> results = new ArrayList<>();
+        int rank = 1;
+
+        for (ZSetOperations.TypedTuple<String> entry : entries) {
+            results.add(new LeaderboardEntryDTO(null, entry.getValue(), entry.getScore() != null ? entry.getScore() : 0.0, rank++));
+        }
+        return results;
     }
 
     // Clear leaderboard for quiz

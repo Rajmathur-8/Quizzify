@@ -6,9 +6,17 @@ import com.raj.quiz_app_backend.repository.UserRepository;
 import com.raj.quiz_app_backend.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -126,5 +134,47 @@ public class UserServiceImpl implements UserService {
     @Override
     public int getAttemptCount(String userId) {
         return getById(userId).getQuizzesAttempted();
+    }
+
+    @Override
+    public User updateAvatar(String id, MultipartFile file) {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        final String folder = "uploads/avatars";
+        try {
+            // ensure directory exists
+            Path uploadDir = Paths.get(folder);
+            Files.createDirectories(uploadDir);
+
+            // sanitize original filename and avoid path traversal
+            String original = Optional.ofNullable(file.getOriginalFilename()).orElse("avatar");
+            String baseName = Paths.get(original).getFileName().toString(); // removes any path segments
+            String safeBase = baseName.replaceAll("[^a-zA-Z0-9._-]", "_"); // keep it conservative
+            String filename = id + "_" + System.currentTimeMillis() + "_" + safeBase;
+
+            Path dest = uploadDir.resolve(filename);
+
+            // write file to disk (safer than transferTo in some environments)
+            try (InputStream in = file.getInputStream()) {
+                Files.copy(in, dest, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            String avatarUrl = "/" + folder + "/" + filename; // e.g. /uploads/avatars/...
+            user.setAvatarUrl(avatarUrl);
+
+            User saved = userRepo.save(user);
+
+            // log success (use your logger)
+            // logger.info("Saved avatar for user {} at {}", id, dest.toAbsolutePath());
+            System.out.printf("Saved avatar for user %s at %s%n", id, dest.toAbsolutePath().toString());
+
+            return saved;
+        } catch (Exception e) {
+            // log details for debugging
+            System.err.printf("Failed to upload avatar for user %s: %s%n", id, e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to upload avatar: " + e.getMessage(), e);
+        }
     }
 }

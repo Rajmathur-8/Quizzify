@@ -114,7 +114,7 @@ jwt:
 # ✅ APP-LEVEL SETTINGS
 # ============================================================
 app:
-  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
   verification-expiration-hours: 24
 
 # ============================================================

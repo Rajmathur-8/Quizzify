@@ -2,6 +2,8 @@ package com.raj.quiz_app_backend.services;
 
 import com.raj.quiz_app_backend.model.Role;
 import com.raj.quiz_app_backend.model.User;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 public interface UserService {
@@ -35,4 +37,6 @@ public interface UserService {
     void incrementAttemptCount(String userId);
      // Get total quizzes attempted by user.
     int getAttemptCount(String userId);
+
+    User updateAvatar(String id, MultipartFile file);
 }

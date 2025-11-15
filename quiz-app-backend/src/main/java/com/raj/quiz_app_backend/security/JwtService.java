@@ -3,6 +3,7 @@ package com.raj.quiz_app_backend.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
@@ -27,11 +29,18 @@ public class JwtService {
     @Value("${jwt.expiration:3600000}") // default 1 hour
     private long jwtExpirationMs;
 
-    // ✅ SecretKey (JJWT 0.13.0 requires javax.crypto.SecretKey for HMAC)
-    private SecretKey getSigningKey() {
-        // ensure secret is at least 32 bytes long for HS256
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    @PostConstruct
+    public void logSecret() {
+        log.info("✅ JWT Secret loaded successfully. Length = {}", jwtSecret.length());
     }
+
+
+    // ✅ SecretKey (JJWT 0.13.0 requires base64)
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
 
     // ✅ Generate a JWT using user ID as subject
     public String generateToken(String userId) {
